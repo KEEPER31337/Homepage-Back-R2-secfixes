@@ -342,7 +342,7 @@ public class Member {
   }
 
   public void minusPoint(int point, String message) {
-    if (this.point < point && point < 0) {
+    if (this.point < point || point < 0) {
       throw new IllegalArgumentException();
     }
     this.point -= point;
