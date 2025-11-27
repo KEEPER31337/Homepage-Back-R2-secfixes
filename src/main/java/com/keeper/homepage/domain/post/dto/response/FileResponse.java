@@ -16,7 +16,6 @@ public class FileResponse {
 
   private Long fileId;
   private String name;
-  private String path;
   private Long size;
   private String ipAddress;
 
@@ -27,7 +26,6 @@ public class FileResponse {
     return FileResponse.builder()
         .fileId(file.getId())
         .name(file.getFileName())
-        .path(file.getFilePath())
         .size(file.getFileSize())
         .uploadTime(file.getUploadTime())
         .ipAddress(file.getIpAddress())
