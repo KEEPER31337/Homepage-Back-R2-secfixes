@@ -88,6 +88,7 @@ public enum ErrorCode {
   INVALID_BETTING_POINT("베팅포인트는 " + MIN_BETTING_POINT + "이상 " + MAX_BETTING_POINT + "이하의 숫자여야합니다",HttpStatus.BAD_REQUEST),
   // FILE
   FILE_NOT_FOUND("해당 파일은 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
+  FILE_INVALID_TYPE("허용되지 않는 파일 형식입니다.", HttpStatus.BAD_REQUEST),
   // ATTENDANCE
   ATTENDANCE_NOT_FOUND("출석 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
   // CTF
