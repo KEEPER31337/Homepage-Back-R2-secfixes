@@ -288,6 +288,9 @@ public class PostService {
     }
     fileIds.stream().forEach(fileId -> {
       FileEntity file = fileService.findById(fileId);
+      if (!file.isPost(post)) {
+        throw new BusinessException(postId, "postId", POST_HAS_NOT_THAT_FILE);
+      }
       postHasFileRepository.deleteByPostAndFile(post, file);
       fileUtil.deleteFileAndEntity(file);
     });
