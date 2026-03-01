@@ -1,0 +1,47 @@
+name: KEEPER Homepage-Back-R2 deploy
+on: workflow_dispatch 
+# todo: 임시로 설정한 부분으로 나중에 release 태그 푸시나 어떻게 할지는 고민.
+# todo 버전 고정시키기. sha 해시 사용해서 공급망 보안
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps: 
+      - uses: actions/checkout@v6
+
+      - name: Set image tag
+        run: echo "SHORT_SHA=$(git rev-parse --short "${GITHUB_SHA}")" >> "$GITHUB_ENV"
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Build Backend Docker Image
+        run: |
+          docker buildx build \
+            --file ./infra/backend.Dockerfile \
+            --tag homepage-back-r2:${SHORT_SHA} \
+            --load \
+            .
+
+      - uses: rezakargar/setup-unregistry@v1
+
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add remote host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Send Docker Image to Server
+        run: docker pussh homepage-back-r2:${SHORT_SHA} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}
+
+      - name: Renew Backend Container
+        run: |
+          ssh "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" "SHORT_SHA=${SHORT_SHA} bash -s" << 'EOF'
+            cd /opt/keeper-infra/containers
+            echo "BACKEND_TAG=${SHORT_SHA}" > .backend-ver.env
+            docker compose --env-file .env --env-file backend-ver.env up -d --no-deps --force-recreate backend
+          EOF
