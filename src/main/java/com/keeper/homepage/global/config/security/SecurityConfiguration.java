@@ -39,8 +39,6 @@ public class SecurityConfiguration {
         .csrf(AbstractHttpConfigurer::disable)
         .logout(AbstractHttpConfigurer::disable)
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .headers(headers -> headers
-            .addHeaderWriter(new StaticHeadersWriter("X-Content-Type-Options", "nosniff")))
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .exceptionHandling(exceptions -> exceptions
             .accessDeniedHandler(customAccessDeniedHandler)
