@@ -1,9 +1,12 @@
 package com.keeper.homepage.global.util.file.server;
 
 import com.keeper.homepage.global.error.BusinessException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashMap;
+import org.apache.tika.Tika;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,6 +15,7 @@ import static com.keeper.homepage.global.error.ErrorCode.FILE_INVALID_TYPE;
 class FileServerValidator {
 
     private static final Map<String, Set<String>> ALLOWED_FILE_TYPES;
+    private static final Tika TIKA = new Tika();
     
     static {
         ALLOWED_FILE_TYPES = new HashMap<>();
@@ -42,7 +46,7 @@ class FileServerValidator {
     }
 
     public static void validate(MultipartFile file) {
-        String mimeType = file.getContentType();
+        String mimeType = detectMimeType(file);
         String extension = extractExtension(file.getOriginalFilename());
         
         if (mimeType == null || !ALLOWED_FILE_TYPES.containsKey(mimeType)) {
@@ -61,5 +65,13 @@ class FileServerValidator {
             return null;
         }
         return "." + extension.toLowerCase();
+    }
+
+    private static String detectMimeType(MultipartFile file) {
+        try (InputStream inputStream = file.getInputStream()) {
+            return TIKA.detect(inputStream, file.getOriginalFilename());
+        } catch (IOException e) {
+            throw new BusinessException("unknown", "mimeType", FILE_INVALID_TYPE);
+        }
     }
 }
