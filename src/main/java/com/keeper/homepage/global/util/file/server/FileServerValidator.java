@@ -1,6 +1,7 @@
 package com.keeper.homepage.global.util.file.server;
 
 import com.keeper.homepage.global.error.BusinessException;
+import com.keeper.homepage.global.util.file.exception.FileSaveFailedException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
@@ -44,7 +45,7 @@ class FileServerValidator {
         try (InputStream inputStream = file.getInputStream()) {
             return TIKA.detect(inputStream, file.getOriginalFilename());
         } catch (IOException e) {
-            throw new BusinessException("unknown", "mimeType", FILE_INVALID_TYPE);
+            throw new FileSaveFailedException(e);
         }
     }
 }
