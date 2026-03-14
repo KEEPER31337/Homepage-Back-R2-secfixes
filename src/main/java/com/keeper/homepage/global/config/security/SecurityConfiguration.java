@@ -30,7 +30,7 @@ public class SecurityConfiguration {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests(auth -> auth
+    return http.authorizeHttpRequests(auth -> auth
             .requestMatchers("/docs/**", "/keeper_files/**", "/auth-test", "/sign-up/**", "/error",
                 "/about/**", "/sign-in/**", "/posts/recent", "/posts/trend", "/keeper-metrics/**")
             .permitAll()
@@ -43,9 +43,8 @@ public class SecurityConfiguration {
         .exceptionHandling(exceptions -> exceptions
             .accessDeniedHandler(customAccessDeniedHandler)
             .authenticationEntryPoint(customAuthenticationEntryPoint))
-        .addFilterBefore(refreshTokenFilter, UsernamePasswordAuthenticationFilter.class);
-
-    return http.build();
+        .addFilterBefore(refreshTokenFilter, UsernamePasswordAuthenticationFilter.class)
+        .build();
   }
 
   @Bean
