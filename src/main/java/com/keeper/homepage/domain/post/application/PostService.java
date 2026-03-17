@@ -336,7 +336,7 @@ public class PostService {
   }
 
   public List<MainPostResponse> getRecentPosts() {
-    return postRepository.findAllRecent(PageRequest.of(0, RECENT_POSTING_COUNT))
+    return postRepository.findAllRecent(시험게시판.getId(), PageRequest.of(0, RECENT_POSTING_COUNT))
         .stream()
         .map(this::getMainPostResponse)
         .limit(RECENT_POSTING_COUNT)
@@ -346,7 +346,7 @@ public class PostService {
   public List<MainPostResponse> getTrendPosts() {
     LocalDateTime startDateTime = LocalDateTime.now().minusWeeks(2);
     LocalDateTime endDateTime = LocalDateTime.now().plusDays(1);
-    List<Post> posts = postRepository.findAllTrend(startDateTime, endDateTime);
+    List<Post> posts = postRepository.findAllTrend(startDateTime, endDateTime, 시험게시판.getId());
     posts.sort((post1, post2) -> {
       int postScore1 = getPostScore(post1);
       int postScore2 = getPostScore(post2);
