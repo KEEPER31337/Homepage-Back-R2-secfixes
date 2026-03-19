@@ -38,7 +38,7 @@ public class AccessTokenReissueCondition implements JwtTokenCondition {
         String authId = String.valueOf(jwtTokenProvider.getAuthId(refreshTokenDto.getToken()));
         String[] roles = jwtTokenProvider.getRoles(refreshTokenDto.getToken());
         String userAgent = httpRequest.getHeader(USER_AGENT);
-        authCookieService.deleteRefreshToken(authId, userAgent, refreshTokenDto.getToken());
+        authCookieService.deleteRefreshToken(authId, refreshTokenDto.getToken());
         authCookieService.setNewCookieInResponse(authId, roles, userAgent, httpResponse);
     }
 

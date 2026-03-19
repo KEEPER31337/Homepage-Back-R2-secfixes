@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import static com.keeper.homepage.global.config.security.data.JwtType.REFRESH_TOKEN;
-import static org.springframework.http.HttpHeaders.USER_AGENT;
 
 @RequiredArgsConstructor
 @Service
@@ -20,8 +19,7 @@ public class SignOutService {
 
   public void signOut(Member me, HttpServletRequest request, HttpServletResponse response) {
     String refreshToken = resolveRefreshToken(request);
-    String userAgent = request.getHeader(USER_AGENT);
-    authCookieService.setCookieExpiredWithRedis(String.valueOf(me.getId()), userAgent, refreshToken, response);
+    authCookieService.setCookieExpiredWithRedis(String.valueOf(me.getId()), refreshToken, response);
   }
 
   private String resolveRefreshToken(HttpServletRequest request) {

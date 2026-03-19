@@ -39,10 +39,10 @@ public class AuthCookieService {
     httpResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
   }
 
-  public void setCookieExpiredWithRedis(String authId, String userAgent, String refreshToken,
+  public void setCookieExpiredWithRedis(String authId, String refreshToken,
       HttpServletResponse response) {
     setCookieExpired(response);
-    deleteRefreshToken(authId, userAgent, refreshToken);
+    deleteRefreshToken(authId, refreshToken);
   }
 
   public void setCookieExpired(HttpServletResponse response) {
@@ -50,19 +50,11 @@ public class AuthCookieService {
     setTokenInCookie(response, "", 0, ACCESS_TOKEN.getTokenName());
   }
 
-  public void deleteRefreshToken(String authId, String userAgent, String refreshToken) {
-    if (deleteRefreshTokenByKey(authId, userAgent)) {
-      return;
-    }
+  public void deleteRefreshToken(String authId, String refreshToken) {
     if (refreshToken == null || refreshToken.isBlank()) {
       return;
     }
     deleteRefreshTokenByValue(authId, refreshToken);
-  }
-
-  private boolean deleteRefreshTokenByKey(String authId, String userAgent) {
-    String key = JwtTokenProvider.getRefreshTokenKeyForRedis(authId, userAgent);
-    return redisUtil.deleteData(key);
   }
 
   private void deleteRefreshTokenByValue(String authId, String refreshToken) {
