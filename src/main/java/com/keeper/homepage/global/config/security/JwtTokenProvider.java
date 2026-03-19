@@ -48,6 +48,10 @@ public class JwtTokenProvider {
     return "refreshToken:" + authId + ":" + encodedUserAgent;
   }
 
+  public static String getRefreshTokenKeyPatternForRedis(String authId) {
+    return "refreshToken:" + authId + ":*";
+  }
+
   public JwtTokenProvider(@Value("${spring.jwt.secret}") String secretKey) {
     this.secretKey = Keys.hmacShaKeyFor(secretKey.getBytes());
   }
