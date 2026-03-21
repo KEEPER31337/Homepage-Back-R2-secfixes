@@ -43,5 +43,5 @@ jobs:
           ssh "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" "SHORT_SHA=${SHORT_SHA} bash -s" << 'EOF'
             cd /opt/keeper-infra/containers
             echo "BACKEND_TAG=${SHORT_SHA}" > .backend-ver.env
-            docker compose --env-file .env --env-file backend-ver.env up -d --no-deps --force-recreate backend
+            sudo docker compose --env-file .env --env-file backend-ver.env up -d --no-deps --force-recreate backend
           EOF
