@@ -6,6 +6,7 @@ import static com.keeper.homepage.domain.post.dto.request.PostCreateRequest.POST
 import static com.keeper.homepage.domain.post.entity.category.Category.CategoryType.자유게시판;
 import static com.keeper.homepage.domain.post.entity.category.Category.getCategoryBy;
 import static com.keeper.homepage.global.config.security.data.JwtType.ACCESS_TOKEN;
+import static com.keeper.homepage.global.restdocs.RestDocsHelper.dateTimeFormat;
 import static com.keeper.homepage.global.error.ErrorCode.POST_COMMENT_NEED;
 import static com.keeper.homepage.global.error.ErrorCode.POST_HAS_NOT_THAT_FILE;
 import static com.keeper.homepage.global.restdocs.RestDocsHelper.getSecuredValue;
@@ -382,8 +383,8 @@ public class PostControllerTest extends PostApiTestHelper {
                   fieldWithPath("writerId").description("게시글 작성자의 ID(익명 게시판일 경우 \"1\")"),
                   fieldWithPath("writerName").description("게시글 작성자의 이름(익명 게시판일 경우 \"익명\")"),
                   fieldWithPath("writerThumbnailPath").description("게시글 작성자의 썸네일 경로(익명 게시판일 경우 null)"),
-                  fieldWithPath("registerTime").description("게시글 등록 시간"),
-                  fieldWithPath("updateTime").description("게시글 수정 시간"),
+                  fieldWithPath("registerTime").description("게시글 등록 시간").attributes(dateTimeFormat()),
+                  fieldWithPath("updateTime").description("게시글 수정 시간").attributes(dateTimeFormat()),
                   fieldWithPath("visitCount").description("게시글 조회수"),
                   fieldWithPath("thumbnailPath").description("게시글 썸네일 주소"),
                   fieldWithPath("content").description("게시글 내용"),
@@ -654,7 +655,7 @@ public class PostControllerTest extends PostApiTestHelper {
                   fieldWithPath("posts[].isSecret").description("게시글 비밀글 여부"),
                   fieldWithPath("posts[].thumbnailPath").description("게시글 썸네일 주소").optional(),
                   fieldWithPath("posts[].likeCount").description("게시글 좋아요 수"),
-                  fieldWithPath("posts[].registerTime").description("게시글 작성 시간")
+                  fieldWithPath("posts[].registerTime").description("게시글 작성 시간").attributes(dateTimeFormat())
               )));
     }
   }
