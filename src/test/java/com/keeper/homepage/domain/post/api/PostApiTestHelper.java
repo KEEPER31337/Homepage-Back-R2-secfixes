@@ -1,6 +1,7 @@
 package com.keeper.homepage.domain.post.api;
 
 import static com.keeper.homepage.global.config.security.data.JwtType.ACCESS_TOKEN;
+import static com.keeper.homepage.global.restdocs.RestDocsHelper.dateTimeFormat;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart;
@@ -168,7 +169,7 @@ public class PostApiTestHelper extends IntegrationTest {
         fieldWithPath("isSecret").description("비밀글 여부"),
         fieldWithPath("thumbnailPath").description("게시글 썸네일 주소").optional(),
         fieldWithPath("likeCount").description("게시글 좋아요 수"),
-        fieldWithPath("registerTime").description("게시글 등록 시간")
+        fieldWithPath("registerTime").description("게시글 등록 시간").attributes(dateTimeFormat())
     };
   }
 
@@ -183,7 +184,7 @@ public class PostApiTestHelper extends IntegrationTest {
         fieldWithPath("visitCount").description("게시글 조회수"),
         fieldWithPath("isSecret").description("비밀글 여부"),
         fieldWithPath("thumbnailPath").description("게시글 썸네일 주소").optional(),
-        fieldWithPath("registerTime").description("게시글 등록 시간")
+        fieldWithPath("registerTime").description("게시글 등록 시간").attributes(dateTimeFormat())
     };
   }
 
@@ -195,7 +196,7 @@ public class PostApiTestHelper extends IntegrationTest {
         fieldWithPath("categoryName").description("게시글 카테고리 이름"),
         fieldWithPath("visitCount").description("게시글 조회수"),
         fieldWithPath("isSecret").description("비밀글 여부"),
-        fieldWithPath("registerTime").description("게시글 등록 시간")
+        fieldWithPath("registerTime").description("게시글 등록 시간").attributes(dateTimeFormat())
     };
   }
 
@@ -205,7 +206,7 @@ public class PostApiTestHelper extends IntegrationTest {
         fieldWithPath("title").description("게시글 제목"),
         fieldWithPath("categoryId").description("게시글 카테고리 ID"),
         fieldWithPath("categoryName").description("게시글 카테고리 이름"),
-        fieldWithPath("registerTime").description("게시글 등록 시간")
+        fieldWithPath("registerTime").description("게시글 등록 시간").attributes(dateTimeFormat())
     };
   }
 }
