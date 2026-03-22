@@ -7,7 +7,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: deploy 
-    
+
     steps: 
       - uses: actions/checkout@v6
 
@@ -44,5 +44,5 @@ jobs:
           ssh "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" "SHORT_SHA=${SHORT_SHA} bash -s" << 'EOF'
             cd /opt/keeper-infra/containers
             echo "BACKEND_TAG=${SHORT_SHA}" > .backend-ver.env
-            sudo docker compose --env-file .env --env-file backend-ver.env up -d --no-deps --force-recreate backend
+            sudo docker compose --env-file .env --env-file .backend-ver.env up -d --no-deps --force-recreate backend
           EOF
