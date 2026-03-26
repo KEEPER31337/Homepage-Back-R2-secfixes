@@ -79,6 +79,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
       + "WHERE p.category = :category "
       + "AND p.postStatus.isNotice = false "
       + "AND p.postStatus.isTemp = false "
+      + "AND p.postStatus.isSecret = false "
       + "AND LOWER(p.postContent.content) LIKE LOWER(concat('%', :search, '%')) "
       + "ORDER BY p.registerTime DESC")
   Page<Post> findAllRecentByCategoryAndContent(@Param("category") Category category, @Param("search") String search,
