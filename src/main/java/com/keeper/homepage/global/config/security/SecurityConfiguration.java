@@ -28,7 +28,8 @@ public class SecurityConfiguration {
   public static final List<String> ALLOWED_ORIGINS = List.of(
       "https://keeper.or.kr",
       "http://localhost:3000",
-      "http://localhost:3001");
+      "https://dev.keeper.or.kr"
+      );
 
   private final CustomAccessDeniedHandler customAccessDeniedHandler;
   private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
