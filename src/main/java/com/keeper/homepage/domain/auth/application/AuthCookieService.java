@@ -7,6 +7,7 @@ import com.keeper.homepage.global.config.security.JwtTokenProvider;
 import com.keeper.homepage.global.util.redis.RedisUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,10 @@ public class AuthCookieService {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final RedisUtil redisUtil;
+  @Value("${app.auth.cookie.same-site:None}")
+  private String sameSite;
+  @Value("${app.auth.cookie.secure:true}")
+  private boolean secure;
 
   public void setNewCookieInResponse(String authId, String[] roles, String userAgent, HttpServletResponse response) {
     String newRefreshToken = jwtTokenProvider.createAccessToken(REFRESH_TOKEN, authId, roles);
@@ -31,10 +36,10 @@ public class AuthCookieService {
   private void setTokenInCookie(HttpServletResponse httpResponse, String token, int expiredSeconds, String cookieName) {
     ResponseCookie cookie = ResponseCookie.from(cookieName, token)
         .path("/")
-        .sameSite("None")
+        .sameSite(sameSite)
         .httpOnly(true)
         .maxAge(expiredSeconds)
-        .secure(true)
+        .secure(secure)
         .build();
     httpResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
   }

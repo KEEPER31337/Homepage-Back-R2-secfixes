@@ -3,6 +3,7 @@ package com.keeper.homepage.global.config.security;
 import com.keeper.homepage.global.config.security.filter.RefreshTokenFilter;
 import com.keeper.homepage.global.config.security.handler.CustomAccessDeniedHandler;
 import com.keeper.homepage.global.config.security.handler.CustomAuthenticationEntryPoint;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration {
+
+  public static final List<String> ALLOWED_ORIGINS = List.of(
+      "https://keeper.or.kr",
+      "http://localhost:3000",
+      "http://localhost:3001");
 
   private final CustomAccessDeniedHandler customAccessDeniedHandler;
   private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
@@ -51,10 +57,11 @@ public class SecurityConfiguration {
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
 
-    configuration.addAllowedOriginPattern("*");
-    configuration.addAllowedHeader("*");
-    configuration.addAllowedMethod("*");
+    configuration.setAllowedOrigins(ALLOWED_ORIGINS);
+    configuration.setAllowedHeaders(List.of("Content-Type", "Authorization", "X-Requested-With"));
+    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     configuration.setAllowCredentials(true);
+    configuration.setMaxAge(3600L);
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);

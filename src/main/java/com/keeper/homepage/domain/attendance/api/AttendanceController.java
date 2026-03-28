@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +43,14 @@ public class AttendanceController {
   @GetMapping("/continuous-rank")
   public ResponseEntity<List<AttendanceContinuousRankResponse>> getContinuousRanks() {
     return ResponseEntity.ok(attendanceService.getContinuousRanks());
+  }
+
+  @PostMapping("/point")
+  public ResponseEntity<AttendancePointResponse> createTodayAttendance(
+      @LoginMember Member member
+  ) {
+    attendanceService.create(member.getId());
+    return ResponseEntity.ok(attendanceService.getTodayAttendancePoint(member));
   }
 
   @GetMapping("/point")
