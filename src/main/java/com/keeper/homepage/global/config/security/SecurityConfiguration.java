@@ -27,7 +27,6 @@ public class SecurityConfiguration {
 
   public static final List<String> ALLOWED_ORIGINS = List.of(
       "https://keeper.or.kr",
-      "http://localhost:3000",
       "https://dev.keeper.or.kr"
       );
 
