@@ -5,6 +5,8 @@ import static com.keeper.homepage.domain.post.entity.category.Category.CategoryT
 import static com.keeper.homepage.global.error.ErrorCode.FILE_NOT_FOUND;
 import static com.keeper.homepage.global.error.ErrorCode.POST_ACCESS_CONDITION_NEED;
 import static com.keeper.homepage.global.error.ErrorCode.POST_COMMENT_NEED;
+import static com.keeper.homepage.global.error.ErrorCode.POST_EXAM_FILE_ACCESS_NEED;
+import static com.keeper.homepage.global.error.ErrorCode.POST_EXAM_FILE_POINT_NOT_ENOUGH;
 import static com.keeper.homepage.global.error.ErrorCode.POST_HAS_NOT_THAT_FILE;
 import static com.keeper.homepage.global.error.ErrorCode.POST_INACCESSIBLE;
 import static com.keeper.homepage.global.error.ErrorCode.POST_PASSWORD_MISMATCH;
@@ -208,6 +210,35 @@ public class PostService {
         .map(PostHasFile::getFile)
         .map(FileResponse::from)
         .toList();
+  }
+
+  public void validateExamFilesAccess(Member member, long postId) {
+    Post post = validPostFindService.findById(postId);
+    if (isAccessibleExamFiles(member, post)) {
+      return;
+    }
+    throw new BusinessException(postId, "postId", POST_EXAM_FILE_ACCESS_NEED);
+  }
+
+  @Transactional
+  public void grantExamFilesAccess(Member member, long postId) {
+    Post post = validPostFindService.findById(postId);
+    if (isAccessibleExamFiles(member, post)) {
+      return;
+    }
+    if (member.getPoint() < EXAM_READ_DEDUCTION_POINT) {
+      throw new BusinessException(member.getPoint(), "point", POST_EXAM_FILE_POINT_NOT_ENOUGH);
+    }
+    member.read(post);
+    member.minusPoint(EXAM_READ_DEDUCTION_POINT, EXAM_READ_POINT_MESSAGE);
+  }
+
+  private boolean isAccessibleExamFiles(Member member, Post post) {
+    return !isExamFileAccessTarget(member, post) || member.isRead(post);
+  }
+
+  private boolean isExamFileAccessTarget(Member member, Post post) {
+    return post.isCategory(시험게시판) && !post.isNotice() && !post.isMine(member);
   }
 
   @Transactional
