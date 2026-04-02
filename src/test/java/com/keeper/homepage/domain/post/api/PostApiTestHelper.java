@@ -6,6 +6,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 
@@ -155,6 +156,16 @@ public class PostApiTestHelper extends IntegrationTest {
   ResultActions callGetFileForContent(String accessToken, String fileUUID) throws Exception {
     return mockMvc.perform(get("/posts/files/{fileUUID}", fileUUID)
             .cookie(new Cookie(ACCESS_TOKEN.getTokenName(), accessToken)));
+  }
+
+  ResultActions callGetExamFilesAccessApi(String accessToken, long postId) throws Exception {
+    return mockMvc.perform(get("/posts/{postId}/exam-files-acess", postId)
+        .cookie(new Cookie(ACCESS_TOKEN.getTokenName(), accessToken)));
+  }
+
+  ResultActions callCreateExamFilesAccessApi(String accessToken, long postId) throws Exception {
+    return mockMvc.perform(post("/posts/{postId}/exam-files-acess", postId)
+        .cookie(new Cookie(ACCESS_TOKEN.getTokenName(), accessToken)));
   }
 
   FieldDescriptor[] getPostsResponse() {

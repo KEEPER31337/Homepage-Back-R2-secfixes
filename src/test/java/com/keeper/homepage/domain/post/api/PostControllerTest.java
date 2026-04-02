@@ -3,12 +3,15 @@ package com.keeper.homepage.domain.post.api;
 import static com.keeper.homepage.domain.member.entity.job.MemberJob.MemberJobType.ROLE_회원;
 import static com.keeper.homepage.domain.post.dto.request.PostCreateRequest.POST_PASSWORD_LENGTH;
 import static com.keeper.homepage.domain.post.dto.request.PostCreateRequest.POST_TITLE_LENGTH;
+import static com.keeper.homepage.domain.post.entity.category.Category.CategoryType.시험게시판;
 import static com.keeper.homepage.domain.post.entity.category.Category.CategoryType.자유게시판;
 import static com.keeper.homepage.domain.post.entity.category.Category.getCategoryBy;
 import static com.keeper.homepage.global.config.security.data.JwtType.ACCESS_TOKEN;
-import static com.keeper.homepage.global.restdocs.RestDocsHelper.dateTimeFormat;
+import static com.keeper.homepage.global.error.ErrorCode.POST_EXAM_FILE_ACCESS_NEED;
+import static com.keeper.homepage.global.error.ErrorCode.POST_EXAM_FILE_POINT_NOT_ENOUGH;
 import static com.keeper.homepage.global.error.ErrorCode.POST_COMMENT_NEED;
 import static com.keeper.homepage.global.error.ErrorCode.POST_HAS_NOT_THAT_FILE;
+import static com.keeper.homepage.global.restdocs.RestDocsHelper.dateTimeFormat;
 import static com.keeper.homepage.global.restdocs.RestDocsHelper.getSecuredValue;
 import static com.keeper.homepage.global.restdocs.RestDocsHelper.listHelper;
 import static com.keeper.homepage.global.restdocs.RestDocsHelper.pageHelper;
@@ -930,6 +933,74 @@ public class PostControllerTest extends PostApiTestHelper {
                   fieldWithPath("[].ipAddress").description("ipAddress"),
                   fieldWithPath("[].uploadTime").description("파일 업로드 시간")
               )));
+    }
+  }
+
+  @Nested
+  @DisplayName("시험게시판 파일 열람 권한")
+  class ExamFilesAccess {
+
+    @Test
+    @DisplayName("시험게시판 일반글을 열람한 회원이면 열람 권한 조회는 성공한다.")
+    void 열람한_시험게시판_일반글이면_열람권한_조회는_성공한다() throws Exception {
+      Category examCategory = getCategoryBy(시험게시판);
+      postService.create(post, examCategory.getId(), thumbnail, List.of(file));
+      postService.grantExamFilesAccess(other, postId);
+
+      em.flush();
+      em.clear();
+
+      callGetExamFilesAccessApi(otherToken, postId)
+          .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("시험게시판 일반글을 열람하지 않은 회원이면 열람 권한 조회는 실패한다.")
+    void 열람하지_않은_시험게시판_일반글이면_열람권한_조회는_실패한다() throws Exception {
+      Category examCategory = getCategoryBy(시험게시판);
+      postService.create(post, examCategory.getId(), thumbnail, List.of(file));
+
+      em.flush();
+      em.clear();
+
+      MvcResult mvcResult = callGetExamFilesAccessApi(otherToken, postId)
+          .andExpect(status().isForbidden())
+          .andReturn();
+
+      String content = mvcResult.getResponse().getContentAsString();
+      assertThat(content).contains(POST_EXAM_FILE_ACCESS_NEED.getMessage());
+    }
+
+    @Test
+    @DisplayName("시험게시판 일반글 열람 권한 생성은 성공한다.")
+    void 시험게시판_일반글_열람권한_생성은_성공한다() throws Exception {
+      Category examCategory = getCategoryBy(시험게시판);
+      postService.create(post, examCategory.getId(), thumbnail, List.of(file));
+
+      em.flush();
+      em.clear();
+
+      callCreateExamFilesAccessApi(otherToken, postId)
+          .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("시험게시판 일반글 열람 권한 생성시 포인트가 부족하면 실패한다.")
+    void 시험게시판_일반글_열람권한_생성시_포인트가_부족하면_실패한다() throws Exception {
+      Category examCategory = getCategoryBy(시험게시판);
+      Member lowPointMember = memberTestHelper.builder().point(9999).build();
+      String lowPointMemberToken = jwtTokenProvider.createAccessToken(ACCESS_TOKEN, lowPointMember.getId(), ROLE_회원);
+      postService.create(post, examCategory.getId(), thumbnail, List.of(file));
+
+      em.flush();
+      em.clear();
+
+      MvcResult mvcResult = callCreateExamFilesAccessApi(lowPointMemberToken, postId)
+          .andExpect(status().isForbidden())
+          .andReturn();
+
+      String content = mvcResult.getResponse().getContentAsString();
+      assertThat(content).contains(POST_EXAM_FILE_POINT_NOT_ENOUGH.getMessage());
     }
   }
 
