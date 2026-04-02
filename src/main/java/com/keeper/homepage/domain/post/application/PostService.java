@@ -401,14 +401,21 @@ public class PostService {
 
   public FileEntity getFile(Member member, long postId, long fileId) {
     Post post = validPostFindService.findById(postId);
-    if (!member.hasComment(post) && !post.isMine(member)) {
-      throw new BusinessException(postId, "postId", POST_COMMENT_NEED);
-    }
+    validateFileDownloadAccess(member, post);
     FileEntity file = fileService.findById(fileId);
     if (!file.isPost(post)) {
       throw new BusinessException(postId, "postId", POST_HAS_NOT_THAT_FILE);
     }
     return file;
+  }
+
+  private void validateFileDownloadAccess(Member member, Post post) {
+    if (!isAccessibleExamFiles(member, post)) {
+      throw new BusinessException(post.getId(), "postId", POST_EXAM_FILE_ACCESS_NEED);
+    }
+    if (!member.hasComment(post) && !post.isMine(member)) {
+      throw new BusinessException(post.getId(), "postId", POST_COMMENT_NEED);
+    }
   }
 
   @Transactional
