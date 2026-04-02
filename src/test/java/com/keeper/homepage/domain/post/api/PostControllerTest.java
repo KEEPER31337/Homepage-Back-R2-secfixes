@@ -928,9 +928,7 @@ public class PostControllerTest extends PostApiTestHelper {
               responseFields(
                   fieldWithPath("[].fileId").description("파일 ID"),
                   fieldWithPath("[].name").description("파일 이름"),
-                  fieldWithPath("[].path").description("파일 경로"),
                   fieldWithPath("[].size").description("파일 크기"),
-                  fieldWithPath("[].ipAddress").description("ipAddress"),
                   fieldWithPath("[].uploadTime").description("파일 업로드 시간")
               )));
     }
