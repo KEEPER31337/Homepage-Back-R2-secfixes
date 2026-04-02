@@ -159,12 +159,12 @@ public class PostApiTestHelper extends IntegrationTest {
   }
 
   ResultActions callGetExamFilesAccessApi(String accessToken, long postId) throws Exception {
-    return mockMvc.perform(get("/posts/{postId}/exam-files-acess", postId)
+    return mockMvc.perform(get("/posts/{postId}/exam-files-access", postId)
         .cookie(new Cookie(ACCESS_TOKEN.getTokenName(), accessToken)));
   }
 
   ResultActions callCreateExamFilesAccessApi(String accessToken, long postId) throws Exception {
-    return mockMvc.perform(post("/posts/{postId}/exam-files-acess", postId)
+    return mockMvc.perform(post("/posts/{postId}/exam-files-access", postId)
         .cookie(new Cookie(ACCESS_TOKEN.getTokenName(), accessToken)));
   }
 
