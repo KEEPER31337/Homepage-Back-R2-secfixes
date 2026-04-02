@@ -1105,6 +1105,44 @@ public class PostControllerTest extends PostApiTestHelper {
       String content = mvcResult.getResponse().getContentAsString();
       assertThat(content).contains(POST_HAS_NOT_THAT_FILE.getMessage());
     }
+
+    @Test
+    @DisplayName("시험게시판 일반글을 열람하지 않았으면 파일 다운로드는 실패한다.")
+    void 시험게시판_일반글_미열람시_파일_다운로드는_실패한다() throws Exception {
+      postService.create(post, 시험게시판.getId(), thumbnail, List.of(file));
+      commentTestHelper.builder().post(post).member(other).build();
+
+      em.flush();
+      em.clear();
+      FileEntity file = postHasFileRepository.findByPost(post).get().getFile();
+
+      MvcResult mvcResult = mockMvc.perform(get("/posts/{postId}/files/{fileId}", postId, file.getId())
+              .cookie(new Cookie(ACCESS_TOKEN.getTokenName(), otherToken)))
+          .andExpect(status().isForbidden())
+          .andReturn();
+
+      String content = mvcResult.getResponse().getContentAsString();
+      assertThat(content).contains(POST_EXAM_FILE_ACCESS_NEED.getMessage());
+    }
+
+    @Test
+    @DisplayName("시험게시판 일반글을 열람했으면 파일 다운로드는 성공한다.")
+    void 시험게시판_일반글_열람시_파일_다운로드는_성공한다() throws Exception {
+      Member reader = memberTestHelper.builder().point(50000).build();
+      String readerToken = jwtTokenProvider.createAccessToken(ACCESS_TOKEN, reader.getId(), ROLE_회원);
+
+      postService.create(post, 시험게시판.getId(), thumbnail, List.of(file));
+      commentTestHelper.builder().post(post).member(reader).build();
+      postService.grantExamFilesAccess(reader, postId);
+
+      em.flush();
+      em.clear();
+      FileEntity file = postHasFileRepository.findByPost(post).get().getFile();
+
+      mockMvc.perform(get("/posts/{postId}/files/{fileId}", postId, file.getId())
+              .cookie(new Cookie(ACCESS_TOKEN.getTokenName(), readerToken)))
+          .andExpect(status().isOk());
+    }
   }
 
   @Nested
