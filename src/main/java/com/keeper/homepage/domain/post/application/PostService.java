@@ -200,11 +200,6 @@ public class PostService {
   @Transactional
   public List<FileResponse> getFiles(Member member, long postId) {
     Post post = validPostFindService.findById(postId);
-
-    if (post.isCategory(시험게시판) && !member.isRead(post) && !post.isMine(member)) {
-      member.read(post);
-      member.minusPoint(EXAM_READ_DEDUCTION_POINT, EXAM_READ_POINT_MESSAGE);
-    }
     return post.getPostHasFiles()
         .stream()
         .map(PostHasFile::getFile)
