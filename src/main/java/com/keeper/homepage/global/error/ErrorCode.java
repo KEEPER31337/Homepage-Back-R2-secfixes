@@ -50,6 +50,8 @@ public enum ErrorCode {
   POST_SEARCH_TYPE_NOT_FOUND("존재하지 않는 검색 타입입니다.", HttpStatus.BAD_REQUEST),
   POST_COMMENT_NEED("게시글에 댓글 작성이 필요합니다.", HttpStatus.BAD_REQUEST),
   POST_HAS_NOT_THAT_FILE("해당 파일은 해당 게시글의 파일이 아닙니다.", HttpStatus.BAD_REQUEST),
+  POST_EXAM_FILE_ACCESS_NEED("열람하지 않은 게시글 입니다.", HttpStatus.FORBIDDEN),
+  POST_EXAM_FILE_POINT_NOT_ENOUGH("포인트가 부족합니다.", HttpStatus.FORBIDDEN),
   // COMMENT
   COMMENT_NOT_FOUND("존재하지 않는 댓글입니다.", HttpStatus.NOT_FOUND),
   COMMENT_NOT_WRITER("댓글 작성자가 아닙니다.", HttpStatus.BAD_REQUEST),
