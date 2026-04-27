@@ -72,7 +72,9 @@ public class PostService {
   private static final String ANONYMOUS_NAME = "익명";
   private static final int EXAM_ACCESSIBLE_POINT = 30000;
   private static final int EXAM_READ_DEDUCTION_POINT = 10000;
+  private static final int EXAM_READ_REWARD_POINT = 5000;
   private static final String EXAM_READ_POINT_MESSAGE = "족보 열람";
+  private static final String EXAM_READ_REWARD_POINT_MESSAGE = "족보 열람 보상 (다른 회원의 열람에 따른 지급)";
   private static final int RECENT_POSTING_COUNT = 10;
 
   @Transactional
@@ -226,6 +228,7 @@ public class PostService {
     }
     member.read(post);
     member.minusPoint(EXAM_READ_DEDUCTION_POINT, EXAM_READ_POINT_MESSAGE);
+    post.getMember().addPoint(EXAM_READ_REWARD_POINT, EXAM_READ_REWARD_POINT_MESSAGE);
   }
 
   private boolean isAccessibleExamFiles(Member member, Post post) {

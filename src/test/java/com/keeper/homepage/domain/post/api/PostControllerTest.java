@@ -938,6 +938,12 @@ public class PostControllerTest extends PostApiTestHelper {
   @DisplayName("시험게시판 파일 열람 권한")
   class ExamFilesAccess {
 
+    @BeforeEach
+    void setUp() {
+      other = memberTestHelper.builder().point(EXAM_ACCESSIBLE_POINT).build();
+      otherToken = jwtTokenProvider.createAccessToken(ACCESS_TOKEN, other.getId(), ROLE_회원);
+    }
+
     @Test
     @DisplayName("시험게시판 일반글을 열람한 회원이면 열람 권한 조회는 성공한다.")
     void 열람한_시험게시판_일반글이면_열람권한_조회는_성공한다() throws Exception {
