@@ -1,5 +1,6 @@
 package com.keeper.homepage.domain.post.application;
 
+import static com.keeper.homepage.domain.member.entity.type.MemberType.MemberTypeEnum.휴면회원;
 import static com.keeper.homepage.domain.post.entity.category.Category.CategoryType.시험게시판;
 import static com.keeper.homepage.domain.post.entity.category.Category.CategoryType.익명게시판;
 import static com.keeper.homepage.global.error.ErrorCode.FILE_NOT_FOUND;
@@ -149,6 +150,9 @@ public class PostService {
   }
 
   private void checkAccessibleExamPost(Member member, Post post) {
+    if (member.isType(휴면회원)) {
+      throw new BusinessException(member.getMemberType().getType(), "memberType", POST_ACCESS_CONDITION_NEED);
+    }
     if (post.isMine(member)) {
       return;
     }

@@ -1,5 +1,7 @@
 package com.keeper.homepage.domain.post.application;
 
+import static com.keeper.homepage.domain.member.entity.type.MemberType.MemberTypeEnum.휴면회원;
+import static com.keeper.homepage.domain.member.entity.type.MemberType.getMemberTypeBy;
 import static com.keeper.homepage.domain.post.entity.category.Category.CategoryType.시험게시판;
 import static com.keeper.homepage.domain.post.entity.category.Category.CategoryType.익명게시판;
 import static com.keeper.homepage.domain.post.entity.category.Category.CategoryType.자유게시판;
@@ -222,6 +224,26 @@ public class PostServiceTest extends IntegrationTest {
     @DisplayName("족보 글은 포인트가 20000점 미만이면 조회할 수 없다.")
     public void should_failGetExamPost_when_pointLessThan20000() throws Exception {
       member = memberTestHelper.builder().point(0).build();
+      post = postTestHelper.builder()
+          .member(bestMember)
+          .category(examCategory)
+          .build();
+
+      em.flush();
+      em.clear();
+      member = memberRepository.findById(member.getId()).orElseThrow();
+      post = postRepository.findById(post.getId()).orElseThrow();
+
+      assertThrows(BusinessException.class, () -> {
+        postService.find(member, post.getId(), null);
+      });
+    }
+
+    @Test
+    @DisplayName("휴면 회원은 포인트 조건을 만족해도 족보 글을 조회할 수 없다.")
+    public void 휴면_회원은_포인트_조건을_만족해도_족보_글을_조회할_수_없다() throws Exception {
+      member = memberTestHelper.builder().point(EXAM_ACCESSIBLE_POINT).build();
+      member.updateType(getMemberTypeBy(휴면회원));
       post = postTestHelper.builder()
           .member(bestMember)
           .category(examCategory)
