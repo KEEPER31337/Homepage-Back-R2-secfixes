@@ -73,7 +73,6 @@ public class PostService {
   private final PointService pointService;
 
   private static final String ANONYMOUS_NAME = "익명";
-  private static final int EXAM_ACCESSIBLE_POINT = 30000;
   private static final int EXAM_READ_DEDUCTION_POINT = 10000;
   private static final int EXAM_READ_REWARD_POINT = 5000;
   private static final String EXAM_READ_POINT_MESSAGE = "족보 열람";
@@ -147,24 +146,14 @@ public class PostService {
 
   private void checkExamPost(Member member, Post post) {
     if (post.isCategory(시험게시판)) {
-      checkAccessibleExamPost(member, post);
+      checkAccessibleExamPost(member);
     }
   }
 
-  private void checkAccessibleExamPost(Member member, Post post) {
+  private void checkAccessibleExamPost(Member member) {
     if (member.isType(휴면회원)) {
       throw new BusinessException(member.getMemberType().getType(), "memberType", POST_ACCESS_CONDITION_NEED);
     }
-    if (post.isMine(member)) {
-      return;
-    }
-    if (post.isNotice()) {
-      return;
-    }
-    if (member.getPoint() >= EXAM_ACCESSIBLE_POINT) {
-      return;
-    }
-    throw new BusinessException(member.getPoint(), "point", POST_ACCESS_CONDITION_NEED);
   }
 
   private void checkTempPost(Member member, Post post) {
