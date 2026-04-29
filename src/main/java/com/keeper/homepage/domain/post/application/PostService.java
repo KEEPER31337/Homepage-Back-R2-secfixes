@@ -18,6 +18,7 @@ import com.keeper.homepage.domain.file.application.FileService;
 import com.keeper.homepage.domain.file.entity.FileEntity;
 import com.keeper.homepage.domain.member.application.convenience.MemberFindService;
 import com.keeper.homepage.domain.member.entity.Member;
+import com.keeper.homepage.domain.point.application.PointService;
 import com.keeper.homepage.domain.post.application.convenience.CategoryFindService;
 import com.keeper.homepage.domain.post.application.convenience.PostDeleteService;
 import com.keeper.homepage.domain.post.application.convenience.ValidPostFindService;
@@ -69,6 +70,7 @@ public class PostService {
   private final MemberFindService memberFindService;
   private final FileService fileService;
   private final RedisUtil redisUtil;
+  private final PointService pointService;
 
   private static final String ANONYMOUS_NAME = "익명";
   private static final int EXAM_ACCESSIBLE_POINT = 30000;
@@ -227,12 +229,10 @@ public class PostService {
     if (isAccessibleExamFiles(member, post)) {
       return;
     }
-    if (member.getPoint() < EXAM_READ_DEDUCTION_POINT) {
-      throw new BusinessException(member.getPoint(), "point", POST_EXAM_FILE_POINT_NOT_ENOUGH);
-    }
     member.read(post);
-    member.minusPoint(EXAM_READ_DEDUCTION_POINT, EXAM_READ_POINT_MESSAGE);
-    post.getMember().addPoint(EXAM_READ_REWARD_POINT, EXAM_READ_REWARD_POINT_MESSAGE);
+    pointService.changePointByDelta(member.getId(), -EXAM_READ_DEDUCTION_POINT, EXAM_READ_POINT_MESSAGE,
+        POST_EXAM_FILE_POINT_NOT_ENOUGH);
+    pointService.changePointByDelta(post.getMember().getId(), EXAM_READ_REWARD_POINT, EXAM_READ_REWARD_POINT_MESSAGE);
   }
 
   private boolean isAccessibleExamFiles(Member member, Post post) {
