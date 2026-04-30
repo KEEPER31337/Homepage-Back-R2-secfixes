@@ -1,5 +1,7 @@
 package com.keeper.homepage.domain.post.application;
 
+import static com.keeper.homepage.domain.member.entity.type.MemberType.MemberTypeEnum.휴면회원;
+import static com.keeper.homepage.domain.member.entity.type.MemberType.getMemberTypeBy;
 import static com.keeper.homepage.domain.post.entity.category.Category.CategoryType.시험게시판;
 import static com.keeper.homepage.domain.post.entity.category.Category.CategoryType.익명게시판;
 import static com.keeper.homepage.domain.post.entity.category.Category.CategoryType.자유게시판;
@@ -46,7 +48,6 @@ public class PostServiceTest extends IntegrationTest {
   private MockMultipartFile thumbnail;
   private Post post;
   private long postId;
-  private static final int EXAM_ACCESSIBLE_POINT = 30000;
 
   @BeforeEach
   void setUp() {
@@ -115,7 +116,7 @@ public class PostServiceTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
-      bestMember = memberTestHelper.builder().point(EXAM_ACCESSIBLE_POINT).build();
+      bestMember = memberTestHelper.generate();
       category = getCategoryBy(자유게시판);
       examCategory = getCategoryBy(시험게시판);
     }
@@ -219,9 +220,29 @@ public class PostServiceTest extends IntegrationTest {
     }
 
     @Test
-    @DisplayName("족보 글은 포인트가 20000점 미만이면 조회할 수 없다.")
-    public void should_failGetExamPost_when_pointLessThan20000() throws Exception {
+    @DisplayName("족보 글은 포인트가 없어도 조회할 수 있다.")
+    public void should_successGetExamPost_when_pointIsZero() throws Exception {
       member = memberTestHelper.builder().point(0).build();
+      post = postTestHelper.builder()
+          .member(bestMember)
+          .category(examCategory)
+          .build();
+
+      em.flush();
+      em.clear();
+      member = memberRepository.findById(member.getId()).orElseThrow();
+      post = postRepository.findById(post.getId()).orElseThrow();
+
+      assertDoesNotThrow(() -> {
+        postService.find(member, post.getId(), null);
+      });
+    }
+
+    @Test
+    @DisplayName("휴면 회원은 족보 글을 조회할 수 없다.")
+    public void 휴면_회원은_족보_글을_조회할_수_없다() throws Exception {
+      member = memberTestHelper.generate();
+      member.updateType(getMemberTypeBy(휴면회원));
       post = postTestHelper.builder()
           .member(bestMember)
           .category(examCategory)
@@ -340,7 +361,7 @@ public class PostServiceTest extends IntegrationTest {
     @BeforeEach
     void setUp() {
       writer = memberTestHelper.builder().point(10000).build();
-      reader = memberTestHelper.builder().point(EXAM_ACCESSIBLE_POINT).build();
+      reader = memberTestHelper.builder().point(EXAM_READ_DEDUCTION_POINT).build();
       post = postTestHelper.builder()
           .member(writer)
           .category(getCategoryBy(시험게시판))
@@ -446,7 +467,7 @@ public class PostServiceTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() throws IOException {
-      member = memberTestHelper.builder().point(EXAM_ACCESSIBLE_POINT).build();
+      member = memberTestHelper.generate();
       file1 = new MockMultipartFile("file", "testImage_1x1.png", "image/png",
           new FileInputStream("src/test/resources/images/testImage_1x1.png"));
       file2 = new MockMultipartFile("file",

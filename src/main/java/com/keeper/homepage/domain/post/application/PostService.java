@@ -1,5 +1,6 @@
 package com.keeper.homepage.domain.post.application;
 
+import static com.keeper.homepage.domain.member.entity.type.MemberType.MemberTypeEnum.휴면회원;
 import static com.keeper.homepage.domain.post.entity.category.Category.CategoryType.시험게시판;
 import static com.keeper.homepage.domain.post.entity.category.Category.CategoryType.익명게시판;
 import static com.keeper.homepage.global.error.ErrorCode.FILE_NOT_FOUND;
@@ -17,6 +18,7 @@ import com.keeper.homepage.domain.file.application.FileService;
 import com.keeper.homepage.domain.file.entity.FileEntity;
 import com.keeper.homepage.domain.member.application.convenience.MemberFindService;
 import com.keeper.homepage.domain.member.entity.Member;
+import com.keeper.homepage.domain.point.application.PointService;
 import com.keeper.homepage.domain.post.application.convenience.CategoryFindService;
 import com.keeper.homepage.domain.post.application.convenience.PostDeleteService;
 import com.keeper.homepage.domain.post.application.convenience.ValidPostFindService;
@@ -68,9 +70,9 @@ public class PostService {
   private final MemberFindService memberFindService;
   private final FileService fileService;
   private final RedisUtil redisUtil;
+  private final PointService pointService;
 
   private static final String ANONYMOUS_NAME = "익명";
-  private static final int EXAM_ACCESSIBLE_POINT = 30000;
   private static final int EXAM_READ_DEDUCTION_POINT = 10000;
   private static final int EXAM_READ_REWARD_POINT = 5000;
   private static final String EXAM_READ_POINT_MESSAGE = "족보 열람";
@@ -144,21 +146,14 @@ public class PostService {
 
   private void checkExamPost(Member member, Post post) {
     if (post.isCategory(시험게시판)) {
-      checkAccessibleExamPost(member, post);
+      checkAccessibleExamPost(member);
     }
   }
 
-  private void checkAccessibleExamPost(Member member, Post post) {
-    if (post.isMine(member)) {
-      return;
+  private void checkAccessibleExamPost(Member member) {
+    if (member.isType(휴면회원)) {
+      throw new BusinessException(member.getMemberType().getType(), "memberType", POST_ACCESS_CONDITION_NEED);
     }
-    if (post.isNotice()) {
-      return;
-    }
-    if (member.getPoint() >= EXAM_ACCESSIBLE_POINT) {
-      return;
-    }
-    throw new BusinessException(member.getPoint(), "point", POST_ACCESS_CONDITION_NEED);
   }
 
   private void checkTempPost(Member member, Post post) {
@@ -223,12 +218,10 @@ public class PostService {
     if (isAccessibleExamFiles(member, post)) {
       return;
     }
-    if (member.getPoint() < EXAM_READ_DEDUCTION_POINT) {
-      throw new BusinessException(member.getPoint(), "point", POST_EXAM_FILE_POINT_NOT_ENOUGH);
-    }
     member.read(post);
-    member.minusPoint(EXAM_READ_DEDUCTION_POINT, EXAM_READ_POINT_MESSAGE);
-    post.getMember().addPoint(EXAM_READ_REWARD_POINT, EXAM_READ_REWARD_POINT_MESSAGE);
+    pointService.changePointByDelta(member.getId(), -EXAM_READ_DEDUCTION_POINT, EXAM_READ_POINT_MESSAGE,
+        POST_EXAM_FILE_POINT_NOT_ENOUGH);
+    pointService.changePointByDelta(post.getMember().getId(), EXAM_READ_REWARD_POINT, EXAM_READ_REWARD_POINT_MESSAGE);
   }
 
   private boolean isAccessibleExamFiles(Member member, Post post) {
