@@ -76,11 +76,11 @@ public class PostControllerTest extends PostApiTestHelper {
   private Post post;
   private static final long virtualPostId = 1;
   private long postId;
-  private static final int EXAM_ACCESSIBLE_POINT = 30000;
+  private static final int EXAM_READ_DEDUCTION_POINT = 10000;
 
   @BeforeEach
   void setUp() throws IOException {
-    member = memberTestHelper.builder().point(EXAM_ACCESSIBLE_POINT).build();
+    member = memberTestHelper.generate();
     other = memberTestHelper.generate();
     memberToken = jwtTokenProvider.createAccessToken(ACCESS_TOKEN, member.getId(), ROLE_회원);
     otherToken = jwtTokenProvider.createAccessToken(ACCESS_TOKEN, other.getId(), ROLE_회원);
@@ -937,6 +937,12 @@ public class PostControllerTest extends PostApiTestHelper {
   @Nested
   @DisplayName("시험게시판 파일 열람 권한")
   class ExamFilesAccess {
+
+    @BeforeEach
+    void setUp() {
+      other = memberTestHelper.builder().point(EXAM_READ_DEDUCTION_POINT).build();
+      otherToken = jwtTokenProvider.createAccessToken(ACCESS_TOKEN, other.getId(), ROLE_회원);
+    }
 
     @Test
     @DisplayName("시험게시판 일반글을 열람한 회원이면 열람 권한 조회는 성공한다.")
